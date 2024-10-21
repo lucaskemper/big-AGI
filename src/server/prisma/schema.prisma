@@ -15,34 +15,41 @@ generator client {
 }
 
 datasource db {
-  provider  = "mongodb"
-  url       = env("MDB_URI")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 //
 // Storage of Linked Data
 //
 model LinkStorage {
-  id          String   @id @default(uuid()) @map("_id")
-  ownerId     String
-  visibility  LinkStorageVisibility
-  dataType    LinkStorageDataType
-  dataTitle   String?
-  dataSize    Int
-  data        Json
+  id String @id @default(uuid())
 
-  upVotes     Int       @default(0)
-  downVotes   Int       @default(0)
-  flagsCount  Int       @default(0)
-  readCount   Int       @default(0)
-  writeCount  Int       @default(1)
+  ownerId    String
+  visibility LinkStorageVisibility
 
-  expiresAt   DateTime? // time-based expiration
+  dataType  LinkStorageDataType
+  dataTitle String?
+  dataSize  Int
+  data      Json
+
+  upVotes    Int @default(0)
+  downVotes  Int @default(0)
+  flagsCount Int @default(0)
+  readCount  Int @default(0)
+  writeCount Int @default(1)
+
+  // time-based expiration
+  expiresAt DateTime?
+
+  // manual deletion
   deletionKey String
   isDeleted   Boolean   @default(false)
   deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum LinkStorageVisibility {
